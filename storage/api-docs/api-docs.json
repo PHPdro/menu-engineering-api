@@ -1,0 +1,1112 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Menu Engineering API",
+        "description": "API para gestão de engenharia de cardápio",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Servidor local"
+        }
+    ],
+    "paths": {
+        "/api/analytics/menu-matrix": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "operationId": "c8183ad2a77dc152bcb29c606e017a97",
+                "responses": {
+                    "200": {
+                        "description": "Matriz Popularidade x Rentabilidade"
+                    }
+                }
+            }
+        },
+        "/api/analytics/perishables-alerts": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "operationId": "54b43e7917102478ed09e542e0fa1326",
+                "responses": {
+                    "200": {
+                        "description": "Alertas de perecíveis"
+                    }
+                }
+            }
+        },
+        "/api/analytics/price-trends": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "operationId": "c3806b629baa14ab17159ef6370fa670",
+                "responses": {
+                    "200": {
+                        "description": "Tendências de preço por fornecedor"
+                    }
+                }
+            }
+        },
+        "/api/analytics/traffic-flow": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "operationId": "6cb613c0a3e6653ada7f4772b26167d0",
+                "responses": {
+                    "200": {
+                        "description": "Fluxo por hora e dia da semana"
+                    }
+                }
+            }
+        },
+        "/api/analytics/breakeven": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "operationId": "3edcc567a2e7f3a0dd23f7b9cab34bfc",
+                "responses": {
+                    "200": {
+                        "description": "Ponto de equilíbrio diário"
+                    }
+                }
+            }
+        },
+        "/api/batches": {
+            "get": {
+                "tags": [
+                    "Batches"
+                ],
+                "operationId": "78f7a2aaa0170b07860cd40cccc9e601",
+                "responses": {
+                    "200": {
+                        "description": "Lista"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Batches"
+                ],
+                "operationId": "500a3c8e012b687d0030233a4a527ae6",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Criado"
+                    }
+                }
+            }
+        },
+        "/api/batches/{id}": {
+            "get": {
+                "tags": [
+                    "Batches"
+                ],
+                "operationId": "717f647d6a2044806c2279b73614b720",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhe"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Batches"
+                ],
+                "operationId": "49c286f5608e8f6c08e496bf0611f196",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Atualizado"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Batches"
+                ],
+                "operationId": "efe66d7ff74927d2e8b0650babbbf400",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Removido"
+                    }
+                }
+            }
+        },
+        "/api/dishes": {
+            "get": {
+                "tags": [
+                    "Dishes"
+                ],
+                "operationId": "ddf841d9ba35d917bd22a504c13b2f72",
+                "responses": {
+                    "200": {
+                        "description": "Lista"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Dishes"
+                ],
+                "operationId": "3fc0252a7de74dac3747d26739c844cb",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Criado"
+                    }
+                }
+            }
+        },
+        "/api/dishes/{id}": {
+            "get": {
+                "tags": [
+                    "Dishes"
+                ],
+                "operationId": "07b6fe7c8dc79b35e66b58956b97b893",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhe"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Dishes"
+                ],
+                "operationId": "52b7975eeaea935e1251d215f5ac6bb4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Atualizado"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Dishes"
+                ],
+                "operationId": "57bb2309cba8e67241d5d84d8ceb6beb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Removido"
+                    }
+                }
+            }
+        },
+        "/api/ingredients": {
+            "get": {
+                "tags": [
+                    "Ingredients"
+                ],
+                "operationId": "88554df920fe97e07f179ca559f98b75",
+                "responses": {
+                    "200": {
+                        "description": "Listar ingredientes"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Ingredients"
+                ],
+                "operationId": "290f4795ec7faed0d1e88d61aeb935ee",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Criado"
+                    }
+                }
+            }
+        },
+        "/api/ingredients/{id}": {
+            "get": {
+                "tags": [
+                    "Ingredients"
+                ],
+                "operationId": "0a054220b0a2b30633ee13a9d92f6a97",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhe"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Ingredients"
+                ],
+                "operationId": "b2b705f67b293905971309a7927b3636",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Atualizado"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Ingredients"
+                ],
+                "operationId": "d7a227e0854bd498dfe1c1b9155b4bd0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Removido"
+                    }
+                }
+            }
+        },
+        "/api/ingredient-prices": {
+            "get": {
+                "tags": [
+                    "Suppliers"
+                ],
+                "operationId": "6103ca990aabff29d05dce2d5d62b057",
+                "responses": {
+                    "200": {
+                        "description": "Lista"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Suppliers"
+                ],
+                "operationId": "02ce75f4c501f73e5ad32ddccd35d562",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Criado"
+                    }
+                }
+            }
+        },
+        "/api/ingredient-prices/{id}": {
+            "get": {
+                "tags": [
+                    "Suppliers"
+                ],
+                "operationId": "01d211141ed72193369d58fbd4d5fb89",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhe"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Suppliers"
+                ],
+                "operationId": "ab2c4ce7e6de1d5b06f76a99faec822e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Atualizado"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Suppliers"
+                ],
+                "operationId": "8ecf756ca92abc623666554dbf159a49",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Removido"
+                    }
+                }
+            }
+        },
+        "/api/recipes": {
+            "get": {
+                "tags": [
+                    "Recipes"
+                ],
+                "operationId": "8b9e556d4d747bd60232961951494bfb",
+                "responses": {
+                    "200": {
+                        "description": "Lista"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Recipes"
+                ],
+                "operationId": "46448289940e329a644b891be9c66943",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Criado"
+                    }
+                }
+            }
+        },
+        "/api/recipes/{id}": {
+            "get": {
+                "tags": [
+                    "Recipes"
+                ],
+                "operationId": "494913cea16e9bd1ed0d3a25eda1b1f0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhe"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Recipes"
+                ],
+                "operationId": "61665c36ed1115a4d53992f26035a8fd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Atualizado"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Recipes"
+                ],
+                "operationId": "ff2f374ba56017e8d111c4e218868b9a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Removido"
+                    }
+                }
+            }
+        },
+        "/api/recipe-items": {
+            "get": {
+                "tags": [
+                    "Recipes"
+                ],
+                "operationId": "4362e63fea325bf5ef83dcb0962edf09",
+                "responses": {
+                    "200": {
+                        "description": "Lista"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Recipes"
+                ],
+                "operationId": "dddb01f83a22bb0e6703150059183db1",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Criado"
+                    }
+                }
+            }
+        },
+        "/api/recipe-items/{id}": {
+            "get": {
+                "tags": [
+                    "Recipes"
+                ],
+                "operationId": "b13cf5f3e190cf1b8abd992629a49b62",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhe"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Recipes"
+                ],
+                "operationId": "343942a595ec1d47131a280727726ff2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Atualizado"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Recipes"
+                ],
+                "operationId": "7b396d7355c476108ee47eddd22a6f19",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Removido"
+                    }
+                }
+            }
+        },
+        "/api/sales": {
+            "get": {
+                "tags": [
+                    "Sales"
+                ],
+                "operationId": "419ebb078c83262b05f7c639ae8b2c21",
+                "responses": {
+                    "200": {
+                        "description": "Lista"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Cria venda e baixa estoque por FIFO",
+                "operationId": "51f42c056032d143981f26f6c0888f24",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "sold_at",
+                                    "items"
+                                ],
+                                "properties": {
+                                    "sold_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "channel": {
+                                        "type": "string"
+                                    },
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "dish_id": {
+                                                    "type": "integer"
+                                                },
+                                                "quantity": {
+                                                    "type": "integer"
+                                                },
+                                                "unit_price": {
+                                                    "type": "number",
+                                                    "format": "float"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Criado"
+                    },
+                    "422": {
+                        "description": "Erro de validação / estoque insuficiente"
+                    }
+                }
+            }
+        },
+        "/api/sales/{id}": {
+            "get": {
+                "tags": [
+                    "Sales"
+                ],
+                "operationId": "b352670063e2f09edbfb74f39aef9b56",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhe"
+                    }
+                }
+            }
+        },
+        "/api/suppliers": {
+            "get": {
+                "tags": [
+                    "Suppliers"
+                ],
+                "operationId": "43efd859bdde27a9e53c0afbe0891731",
+                "responses": {
+                    "200": {
+                        "description": "Lista"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Suppliers"
+                ],
+                "operationId": "c1ee06af9e1f197a4aa49c1dd74c981c",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Criado"
+                    }
+                }
+            }
+        },
+        "/api/suppliers/{id}": {
+            "get": {
+                "tags": [
+                    "Suppliers"
+                ],
+                "operationId": "6be0f2389de5f1d79708c391d4cb0156",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhe"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Suppliers"
+                ],
+                "operationId": "837f3815469c658c6255d5037dc09f5c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Atualizado"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Suppliers"
+                ],
+                "operationId": "4498097c7247888776baa62b3ff682c5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Removido"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Ingredient": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "is_perishable": {
+                        "type": "boolean"
+                    },
+                    "shelf_life_days": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "min_stock": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Supplier": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "contact_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "notes": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IngredientPrice": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "ingredient_id": {
+                        "type": "integer"
+                    },
+                    "supplier_id": {
+                        "type": "integer"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "purchase_unit_quantity": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "purchase_unit": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "valid_from": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "valid_to": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Batch": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "ingredient_id": {
+                        "type": "integer"
+                    },
+                    "quantity": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "received_at": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "unit_cost": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                },
+                "type": "object"
+            },
+            "RecipeItem": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "recipe_id": {
+                        "type": "integer"
+                    },
+                    "ingredient_id": {
+                        "type": "integer"
+                    },
+                    "quantity": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "notes": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Recipe": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "dish_id": {
+                        "type": "integer"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "Dish": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "sku": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "SaleItem": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "sale_id": {
+                        "type": "integer"
+                    },
+                    "dish_id": {
+                        "type": "integer"
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    },
+                    "unit_price": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "total_price": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                },
+                "type": "object"
+            },
+            "Sale": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "sold_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "channel": {
+                        "type": "string"
+                    },
+                    "subtotal": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "discount": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "tax": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "total": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Ingredients",
+            "description": "Gestão de insumos"
+        },
+        {
+            "name": "Suppliers",
+            "description": "Fornecedores e preços"
+        },
+        {
+            "name": "Batches",
+            "description": "Lotes e estoque"
+        },
+        {
+            "name": "Dishes",
+            "description": "Pratos do cardápio"
+        },
+        {
+            "name": "Recipes",
+            "description": "Fichas técnicas e itens"
+        },
+        {
+            "name": "Sales",
+            "description": "Vendas e baixa de estoque"
+        },
+        {
+            "name": "Analytics",
+            "description": "Relatórios e métricas"
+        }
+    ]
+}
