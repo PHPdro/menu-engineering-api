@@ -7,8 +7,12 @@
     },
     "servers": [
         {
+            "url": "http://my-default-host.com",
+            "description": "Servidor da API"
+        },
+        {
             "url": "/",
-            "description": "Servidor local"
+            "description": "Servidor relativo (para Laravel Cloud)"
         }
     ],
     "paths": {
@@ -17,10 +21,51 @@
                 "tags": [
                     "Analytics"
                 ],
+                "summary": "Matriz de Popularidade x Rentabilidade",
                 "operationId": "c8183ad2a77dc152bcb29c606e017a97",
+                "parameters": [
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "description": "Data inicial (padrão: 30 dias atrás)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "end",
+                        "in": "query",
+                        "description": "Data final (padrão: hoje)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Matriz Popularidade x Rentabilidade"
+                        "description": "Matriz de popularidade x rentabilidade",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "thresholds": {
+                                            "type": "object"
+                                        },
+                                        "items": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -30,10 +75,33 @@
                 "tags": [
                     "Analytics"
                 ],
+                "summary": "Alertas de perecíveis",
                 "operationId": "54b43e7917102478ed09e542e0fa1326",
+                "parameters": [
+                    {
+                        "name": "hours",
+                        "in": "query",
+                        "description": "Horas à frente para verificar expiração (padrão: 48)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 48
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Alertas de perecíveis"
+                        "description": "Lista de alertas de perecíveis",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -43,10 +111,32 @@
                 "tags": [
                     "Analytics"
                 ],
+                "summary": "Tendências de preço por fornecedor",
                 "operationId": "c3806b629baa14ab17159ef6370fa670",
+                "parameters": [
+                    {
+                        "name": "ingredient_id",
+                        "in": "query",
+                        "description": "Filtrar por ID do ingrediente",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Tendências de preço por fornecedor"
+                        "description": "Tendências de preço",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/IngredientPrice"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -56,10 +146,43 @@
                 "tags": [
                     "Analytics"
                 ],
+                "summary": "Fluxo de tráfego por hora e dia da semana",
                 "operationId": "6cb613c0a3e6653ada7f4772b26167d0",
+                "parameters": [
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "description": "Data inicial (padrão: 30 dias atrás)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "end",
+                        "in": "query",
+                        "description": "Data final (padrão: hoje)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Fluxo por hora e dia da semana"
+                        "description": "Fluxo de tráfego",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -69,10 +192,59 @@
                 "tags": [
                     "Analytics"
                 ],
+                "summary": "Ponto de equilíbrio diário",
                 "operationId": "3edcc567a2e7f3a0dd23f7b9cab34bfc",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "Data para análise (padrão: hoje)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "fixed_cost",
+                        "in": "query",
+                        "description": "Custo fixo diário (padrão: 2000.0)",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "default": 2000
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Ponto de equilíbrio diário"
+                        "description": "Análise de ponto de equilíbrio",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "date": {
+                                            "type": "string",
+                                            "format": "date"
+                                        },
+                                        "breakeven": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "revenue": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "gap": {
+                                            "type": "number",
+                                            "format": "float"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -82,10 +254,44 @@
                 "tags": [
                     "Batches"
                 ],
+                "summary": "Listar lotes",
                 "operationId": "78f7a2aaa0170b07860cd40cccc9e601",
+                "parameters": [
+                    {
+                        "name": "ingredient_id",
+                        "in": "query",
+                        "description": "Filtrar por ID do ingrediente",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Lista"
+                        "description": "Lista paginada de lotes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/PaginatedResponse"
+                                        },
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Batch"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -93,13 +299,31 @@
                 "tags": [
                     "Batches"
                 ],
+                "summary": "Criar lote",
                 "operationId": "500a3c8e012b687d0030233a4a527ae6",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BatchRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
-                        "description": "Criado"
+                        "description": "Lote criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Batch"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             }
@@ -109,11 +333,13 @@
                 "tags": [
                     "Batches"
                 ],
+                "summary": "Obter detalhes do lote",
                 "operationId": "717f647d6a2044806c2279b73614b720",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do lote",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -122,7 +348,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalhe"
+                        "description": "Detalhes do lote",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Batch"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Lote não encontrado"
                     }
                 }
             },
@@ -130,11 +366,13 @@
                 "tags": [
                     "Batches"
                 ],
+                "summary": "Atualizar lote",
                 "operationId": "49c286f5608e8f6c08e496bf0611f196",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do lote",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -142,11 +380,31 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BatchRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
-                        "description": "Atualizado"
+                        "description": "Lote atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Batch"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Lote não encontrado"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             },
@@ -154,11 +412,13 @@
                 "tags": [
                     "Batches"
                 ],
+                "summary": "Excluir lote",
                 "operationId": "efe66d7ff74927d2e8b0650babbbf400",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do lote",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -167,7 +427,10 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Removido"
+                        "description": "Lote excluído com sucesso"
+                    },
+                    "404": {
+                        "description": "Lote não encontrado"
                     }
                 }
             }
@@ -177,10 +440,44 @@
                 "tags": [
                     "Dishes"
                 ],
+                "summary": "Listar pratos",
                 "operationId": "ddf841d9ba35d917bd22a504c13b2f72",
+                "parameters": [
+                    {
+                        "name": "active_only",
+                        "in": "query",
+                        "description": "Filtrar apenas pratos ativos",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Lista"
+                        "description": "Lista paginada de pratos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/PaginatedResponse"
+                                        },
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Dish"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -188,13 +485,31 @@
                 "tags": [
                     "Dishes"
                 ],
+                "summary": "Criar prato",
                 "operationId": "3fc0252a7de74dac3747d26739c844cb",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DishRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
-                        "description": "Criado"
+                        "description": "Prato criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Dish"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             }
@@ -204,11 +519,13 @@
                 "tags": [
                     "Dishes"
                 ],
+                "summary": "Obter detalhes do prato",
                 "operationId": "07b6fe7c8dc79b35e66b58956b97b893",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do prato",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -217,7 +534,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalhe"
+                        "description": "Detalhes do prato",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Dish"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Prato não encontrado"
                     }
                 }
             },
@@ -225,11 +552,13 @@
                 "tags": [
                     "Dishes"
                 ],
+                "summary": "Atualizar prato",
                 "operationId": "52b7975eeaea935e1251d215f5ac6bb4",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do prato",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -237,11 +566,31 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DishRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
-                        "description": "Atualizado"
+                        "description": "Prato atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Dish"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Prato não encontrado"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             },
@@ -249,11 +598,13 @@
                 "tags": [
                     "Dishes"
                 ],
+                "summary": "Excluir prato",
                 "operationId": "57bb2309cba8e67241d5d84d8ceb6beb",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do prato",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -262,7 +613,10 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Removido"
+                        "description": "Prato excluído com sucesso"
+                    },
+                    "404": {
+                        "description": "Prato não encontrado"
                     }
                 }
             }
@@ -272,10 +626,33 @@
                 "tags": [
                     "Ingredients"
                 ],
+                "summary": "Listar ingredientes",
                 "operationId": "88554df920fe97e07f179ca559f98b75",
                 "responses": {
                     "200": {
-                        "description": "Listar ingredientes"
+                        "description": "Lista paginada de ingredientes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/PaginatedResponse"
+                                        },
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Ingredient"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -283,13 +660,31 @@
                 "tags": [
                     "Ingredients"
                 ],
+                "summary": "Criar ingrediente",
                 "operationId": "290f4795ec7faed0d1e88d61aeb935ee",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IngredientRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
-                        "description": "Criado"
+                        "description": "Ingrediente criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Ingredient"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             }
@@ -299,11 +694,13 @@
                 "tags": [
                     "Ingredients"
                 ],
+                "summary": "Obter detalhes do ingrediente",
                 "operationId": "0a054220b0a2b30633ee13a9d92f6a97",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do ingrediente",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -312,7 +709,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalhe"
+                        "description": "Detalhes do ingrediente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Ingredient"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ingrediente não encontrado"
                     }
                 }
             },
@@ -320,11 +727,13 @@
                 "tags": [
                     "Ingredients"
                 ],
+                "summary": "Atualizar ingrediente",
                 "operationId": "b2b705f67b293905971309a7927b3636",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do ingrediente",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -332,11 +741,31 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IngredientRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
-                        "description": "Atualizado"
+                        "description": "Ingrediente atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Ingredient"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ingrediente não encontrado"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             },
@@ -344,11 +773,13 @@
                 "tags": [
                     "Ingredients"
                 ],
+                "summary": "Excluir ingrediente",
                 "operationId": "d7a227e0854bd498dfe1c1b9155b4bd0",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do ingrediente",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -357,7 +788,10 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Removido"
+                        "description": "Ingrediente excluído com sucesso"
+                    },
+                    "404": {
+                        "description": "Ingrediente não encontrado"
                     }
                 }
             }
@@ -367,10 +801,53 @@
                 "tags": [
                     "Suppliers"
                 ],
+                "summary": "Listar preços de ingredientes",
                 "operationId": "6103ca990aabff29d05dce2d5d62b057",
+                "parameters": [
+                    {
+                        "name": "ingredient_id",
+                        "in": "query",
+                        "description": "Filtrar por ID do ingrediente",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "supplier_id",
+                        "in": "query",
+                        "description": "Filtrar por ID do fornecedor",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Lista"
+                        "description": "Lista paginada de preços de ingredientes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/PaginatedResponse"
+                                        },
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/IngredientPrice"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -378,13 +855,31 @@
                 "tags": [
                     "Suppliers"
                 ],
+                "summary": "Criar preço de ingrediente",
                 "operationId": "02ce75f4c501f73e5ad32ddccd35d562",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IngredientPriceRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
-                        "description": "Criado"
+                        "description": "Preço de ingrediente criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IngredientPrice"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             }
@@ -394,11 +889,13 @@
                 "tags": [
                     "Suppliers"
                 ],
+                "summary": "Obter detalhes do preço de ingrediente",
                 "operationId": "01d211141ed72193369d58fbd4d5fb89",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do preço de ingrediente",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -407,7 +904,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalhe"
+                        "description": "Detalhes do preço de ingrediente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IngredientPrice"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Preço de ingrediente não encontrado"
                     }
                 }
             },
@@ -415,11 +922,13 @@
                 "tags": [
                     "Suppliers"
                 ],
+                "summary": "Atualizar preço de ingrediente",
                 "operationId": "ab2c4ce7e6de1d5b06f76a99faec822e",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do preço de ingrediente",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -427,11 +936,31 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IngredientPriceRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
-                        "description": "Atualizado"
+                        "description": "Preço de ingrediente atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IngredientPrice"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Preço de ingrediente não encontrado"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             },
@@ -439,11 +968,13 @@
                 "tags": [
                     "Suppliers"
                 ],
+                "summary": "Excluir preço de ingrediente",
                 "operationId": "8ecf756ca92abc623666554dbf159a49",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do preço de ingrediente",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -452,7 +983,10 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Removido"
+                        "description": "Preço de ingrediente excluído com sucesso"
+                    },
+                    "404": {
+                        "description": "Preço de ingrediente não encontrado"
                     }
                 }
             }
@@ -462,10 +996,44 @@
                 "tags": [
                     "Recipes"
                 ],
+                "summary": "Listar receitas",
                 "operationId": "8b9e556d4d747bd60232961951494bfb",
+                "parameters": [
+                    {
+                        "name": "dish_id",
+                        "in": "query",
+                        "description": "Filtrar por ID do prato",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Lista"
+                        "description": "Lista paginada de receitas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/PaginatedResponse"
+                                        },
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Recipe"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -473,13 +1041,31 @@
                 "tags": [
                     "Recipes"
                 ],
+                "summary": "Criar receita",
                 "operationId": "46448289940e329a644b891be9c66943",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecipeRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
-                        "description": "Criado"
+                        "description": "Receita criada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Recipe"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             }
@@ -489,11 +1075,13 @@
                 "tags": [
                     "Recipes"
                 ],
+                "summary": "Obter detalhes da receita",
                 "operationId": "494913cea16e9bd1ed0d3a25eda1b1f0",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID da receita",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -502,7 +1090,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalhe"
+                        "description": "Detalhes da receita",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Recipe"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Receita não encontrada"
                     }
                 }
             },
@@ -510,11 +1108,13 @@
                 "tags": [
                     "Recipes"
                 ],
+                "summary": "Atualizar receita",
                 "operationId": "61665c36ed1115a4d53992f26035a8fd",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID da receita",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -522,11 +1122,31 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecipeRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
-                        "description": "Atualizado"
+                        "description": "Receita atualizada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Recipe"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Receita não encontrada"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             },
@@ -534,11 +1154,13 @@
                 "tags": [
                     "Recipes"
                 ],
+                "summary": "Excluir receita",
                 "operationId": "ff2f374ba56017e8d111c4e218868b9a",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID da receita",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -547,7 +1169,10 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Removido"
+                        "description": "Receita excluída com sucesso"
+                    },
+                    "404": {
+                        "description": "Receita não encontrada"
                     }
                 }
             }
@@ -557,10 +1182,44 @@
                 "tags": [
                     "Recipes"
                 ],
+                "summary": "Listar itens de receita",
                 "operationId": "4362e63fea325bf5ef83dcb0962edf09",
+                "parameters": [
+                    {
+                        "name": "recipe_id",
+                        "in": "query",
+                        "description": "Filtrar por ID da receita",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Lista"
+                        "description": "Lista paginada de itens de receita",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/PaginatedResponse"
+                                        },
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/RecipeItem"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -568,13 +1227,31 @@
                 "tags": [
                     "Recipes"
                 ],
+                "summary": "Criar item de receita",
                 "operationId": "dddb01f83a22bb0e6703150059183db1",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecipeItemRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
-                        "description": "Criado"
+                        "description": "Item de receita criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecipeItem"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             }
@@ -584,11 +1261,13 @@
                 "tags": [
                     "Recipes"
                 ],
+                "summary": "Obter detalhes do item de receita",
                 "operationId": "b13cf5f3e190cf1b8abd992629a49b62",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do item de receita",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -597,7 +1276,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalhe"
+                        "description": "Detalhes do item de receita",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecipeItem"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Item de receita não encontrado"
                     }
                 }
             },
@@ -605,11 +1294,13 @@
                 "tags": [
                     "Recipes"
                 ],
+                "summary": "Atualizar item de receita",
                 "operationId": "343942a595ec1d47131a280727726ff2",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do item de receita",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -617,11 +1308,31 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecipeItemRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
-                        "description": "Atualizado"
+                        "description": "Item de receita atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecipeItem"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Item de receita não encontrado"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             },
@@ -629,11 +1340,13 @@
                 "tags": [
                     "Recipes"
                 ],
+                "summary": "Excluir item de receita",
                 "operationId": "7b396d7355c476108ee47eddd22a6f19",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do item de receita",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -642,7 +1355,10 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Removido"
+                        "description": "Item de receita excluído com sucesso"
+                    },
+                    "404": {
+                        "description": "Item de receita não encontrado"
                     }
                 }
             }
@@ -652,10 +1368,33 @@
                 "tags": [
                     "Sales"
                 ],
+                "summary": "Listar vendas",
                 "operationId": "419ebb078c83262b05f7c639ae8b2c21",
                 "responses": {
                     "200": {
-                        "description": "Lista"
+                        "description": "Lista paginada de vendas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/PaginatedResponse"
+                                        },
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Sale"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -663,52 +1402,28 @@
                 "tags": [
                     "Sales"
                 ],
-                "summary": "Cria venda e baixa estoque por FIFO",
+                "summary": "Criar venda e baixar estoque por FIFO",
                 "operationId": "51f42c056032d143981f26f6c0888f24",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "sold_at",
-                                    "items"
-                                ],
-                                "properties": {
-                                    "sold_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "channel": {
-                                        "type": "string"
-                                    },
-                                    "items": {
-                                        "type": "array",
-                                        "items": {
-                                            "properties": {
-                                                "dish_id": {
-                                                    "type": "integer"
-                                                },
-                                                "quantity": {
-                                                    "type": "integer"
-                                                },
-                                                "unit_price": {
-                                                    "type": "number",
-                                                    "format": "float"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/SaleRequest"
                             }
                         }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description": "Criado"
+                        "description": "Venda criada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Sale"
+                                }
+                            }
+                        }
                     },
                     "422": {
                         "description": "Erro de validação / estoque insuficiente"
@@ -721,11 +1436,13 @@
                 "tags": [
                     "Sales"
                 ],
+                "summary": "Obter detalhes da venda",
                 "operationId": "b352670063e2f09edbfb74f39aef9b56",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID da venda",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -734,7 +1451,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalhe"
+                        "description": "Detalhes da venda",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Sale"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Venda não encontrada"
                     }
                 }
             }
@@ -744,10 +1471,33 @@
                 "tags": [
                     "Suppliers"
                 ],
+                "summary": "Listar fornecedores",
                 "operationId": "43efd859bdde27a9e53c0afbe0891731",
                 "responses": {
                     "200": {
-                        "description": "Lista"
+                        "description": "Lista paginada de fornecedores",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/PaginatedResponse"
+                                        },
+                                        {
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Supplier"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -755,13 +1505,31 @@
                 "tags": [
                     "Suppliers"
                 ],
+                "summary": "Criar fornecedor",
                 "operationId": "c1ee06af9e1f197a4aa49c1dd74c981c",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SupplierRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
-                        "description": "Criado"
+                        "description": "Fornecedor criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Supplier"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             }
@@ -771,11 +1539,13 @@
                 "tags": [
                     "Suppliers"
                 ],
+                "summary": "Obter detalhes do fornecedor",
                 "operationId": "6be0f2389de5f1d79708c391d4cb0156",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do fornecedor",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -784,7 +1554,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalhe"
+                        "description": "Detalhes do fornecedor",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Supplier"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Fornecedor não encontrado"
                     }
                 }
             },
@@ -792,11 +1572,13 @@
                 "tags": [
                     "Suppliers"
                 ],
+                "summary": "Atualizar fornecedor",
                 "operationId": "837f3815469c658c6255d5037dc09f5c",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do fornecedor",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -804,11 +1586,31 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SupplierRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
-                        "description": "Atualizado"
+                        "description": "Fornecedor atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Supplier"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Fornecedor não encontrado"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
                     }
                 }
             },
@@ -816,11 +1618,13 @@
                 "tags": [
                     "Suppliers"
                 ],
+                "summary": "Excluir fornecedor",
                 "operationId": "4498097c7247888776baa62b3ff682c5",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID do fornecedor",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -829,7 +1633,10 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Removido"
+                        "description": "Fornecedor excluído com sucesso"
+                    },
+                    "404": {
+                        "description": "Fornecedor não encontrado"
                     }
                 }
             }
@@ -1073,6 +1880,297 @@
                     "total": {
                         "type": "number",
                         "format": "float"
+                    }
+                },
+                "type": "object"
+            },
+            "IngredientRequest": {
+                "required": [
+                    "name",
+                    "unit"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Farinha de trigo"
+                    },
+                    "unit": {
+                        "type": "string",
+                        "example": "kg"
+                    },
+                    "is_perishable": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "shelf_life_days": {
+                        "type": "integer",
+                        "example": 30,
+                        "nullable": true
+                    },
+                    "min_stock": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 10.5,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "SupplierRequest": {
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Fornecedor ABC"
+                    },
+                    "contact_name": {
+                        "type": "string",
+                        "example": "João Silva",
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "contato@fornecedor.com",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "(11) 99999-9999",
+                        "nullable": true
+                    },
+                    "notes": {
+                        "type": "string",
+                        "example": "Entrega apenas às terças",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IngredientPriceRequest": {
+                "required": [
+                    "ingredient_id",
+                    "supplier_id",
+                    "price",
+                    "purchase_unit_quantity",
+                    "valid_from"
+                ],
+                "properties": {
+                    "ingredient_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "supplier_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 25.5
+                    },
+                    "purchase_unit_quantity": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1
+                    },
+                    "purchase_unit": {
+                        "type": "string",
+                        "example": "saco",
+                        "nullable": true
+                    },
+                    "valid_from": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-01-01"
+                    },
+                    "valid_to": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-12-31",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "BatchRequest": {
+                "required": [
+                    "ingredient_id",
+                    "quantity",
+                    "received_at",
+                    "unit_cost"
+                ],
+                "properties": {
+                    "ingredient_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "quantity": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 50
+                    },
+                    "received_at": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-01-15"
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-02-15",
+                        "nullable": true
+                    },
+                    "unit_cost": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 2.5
+                    }
+                },
+                "type": "object"
+            },
+            "DishRequest": {
+                "required": [
+                    "name",
+                    "price"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Hambúrguer Artesanal"
+                    },
+                    "sku": {
+                        "type": "string",
+                        "example": "HAMB-001",
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 29.9
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "RecipeRequest": {
+                "required": [
+                    "dish_id"
+                ],
+                "properties": {
+                    "dish_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "version": {
+                        "type": "string",
+                        "example": "v1.0",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "RecipeItemRequest": {
+                "required": [
+                    "recipe_id",
+                    "ingredient_id",
+                    "quantity"
+                ],
+                "properties": {
+                    "recipe_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "ingredient_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "quantity": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0.2
+                    },
+                    "notes": {
+                        "type": "string",
+                        "example": "Peneirar antes de usar",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "SaleRequest": {
+                "required": [
+                    "sold_at",
+                    "items"
+                ],
+                "properties": {
+                    "sold_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-01-15T12:30:00"
+                    },
+                    "channel": {
+                        "type": "string",
+                        "example": "pos",
+                        "nullable": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "dish_id",
+                                "quantity"
+                            ],
+                            "properties": {
+                                "dish_id": {
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "quantity": {
+                                    "type": "integer",
+                                    "example": 2
+                                },
+                                "unit_price": {
+                                    "type": "number",
+                                    "format": "float",
+                                    "example": 29.9,
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "PaginatedResponse": {
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "current_page": {
+                        "type": "integer"
+                    },
+                    "last_page": {
+                        "type": "integer"
+                    },
+                    "per_page": {
+                        "type": "integer"
+                    },
+                    "total": {
+                        "type": "integer"
                     }
                 },
                 "type": "object"
