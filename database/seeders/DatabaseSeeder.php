@@ -19,5 +19,17 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Seeders na ordem correta (respeitando dependências)
+        $this->call([
+            IngredientSeeder::class,
+            SupplierSeeder::class,
+            IngredientPriceSeeder::class,
+            BatchSeeder::class,
+            DishSeeder::class,
+            RecipeSeeder::class,
+            RecipeItemSeeder::class,
+            SaleSeeder::class, // Opcional - pode ser comentado se não quiser dados de vendas
+        ]);
     }
 }
