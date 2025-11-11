@@ -13,7 +13,33 @@ use Illuminate\Support\Carbon;
 class AnalyticsController extends Controller
 {
     /**
-     * @OA\Get(path="/api/analytics/menu-matrix", tags={"Analytics"}, @OA\Response(response=200, description="Matriz Popularidade x Rentabilidade"))
+     * @OA\Get(
+     *   path="/api/analytics/menu-matrix",
+     *   tags={"Analytics"},
+     *   summary="Matriz de Popularidade x Rentabilidade",
+     *   @OA\Parameter(
+     *     name="start",
+     *     in="query",
+     *     required=false,
+     *     description="Data inicial (padrão: 30 dias atrás)",
+     *     @OA\Schema(type="string", format="date")
+     *   ),
+     *   @OA\Parameter(
+     *     name="end",
+     *     in="query",
+     *     required=false,
+     *     description="Data final (padrão: hoje)",
+     *     @OA\Schema(type="string", format="date")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Matriz de popularidade x rentabilidade",
+     *     @OA\JsonContent(
+     *       @OA\Property(property="thresholds", type="object"),
+     *       @OA\Property(property="items", type="array", @OA\Items(type="object"))
+     *     )
+     *   )
+     * )
      */
     // Popularity vs Profitability matrix
     public function menuMatrix(Request $request)
@@ -80,7 +106,23 @@ class AnalyticsController extends Controller
     }
 
     /**
-     * @OA\Get(path="/api/analytics/perishables-alerts", tags={"Analytics"}, @OA\Response(response=200, description="Alertas de perecíveis"))
+     * @OA\Get(
+     *   path="/api/analytics/perishables-alerts",
+     *   tags={"Analytics"},
+     *   summary="Alertas de perecíveis",
+     *   @OA\Parameter(
+     *     name="hours",
+     *     in="query",
+     *     required=false,
+     *     description="Horas à frente para verificar expiração (padrão: 48)",
+     *     @OA\Schema(type="integer", default=48)
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Lista de alertas de perecíveis",
+     *     @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *   )
+     * )
      */
     // Perishables alert
     public function perishablesAlerts(Request $request)
@@ -116,7 +158,23 @@ class AnalyticsController extends Controller
     }
 
     /**
-     * @OA\Get(path="/api/analytics/price-trends", tags={"Analytics"}, @OA\Response(response=200, description="Tendências de preço por fornecedor"))
+     * @OA\Get(
+     *   path="/api/analytics/price-trends",
+     *   tags={"Analytics"},
+     *   summary="Tendências de preço por fornecedor",
+     *   @OA\Parameter(
+     *     name="ingredient_id",
+     *     in="query",
+     *     required=false,
+     *     description="Filtrar por ID do ingrediente",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Tendências de preço",
+     *     @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/IngredientPrice"))
+     *   )
+     * )
      */
     // Supplier price trends
     public function priceTrends(Request $request)
@@ -132,7 +190,30 @@ class AnalyticsController extends Controller
     }
 
     /**
-     * @OA\Get(path="/api/analytics/traffic-flow", tags={"Analytics"}, @OA\Response(response=200, description="Fluxo por hora e dia da semana"))
+     * @OA\Get(
+     *   path="/api/analytics/traffic-flow",
+     *   tags={"Analytics"},
+     *   summary="Fluxo de tráfego por hora e dia da semana",
+     *   @OA\Parameter(
+     *     name="start",
+     *     in="query",
+     *     required=false,
+     *     description="Data inicial (padrão: 30 dias atrás)",
+     *     @OA\Schema(type="string", format="date")
+     *   ),
+     *   @OA\Parameter(
+     *     name="end",
+     *     in="query",
+     *     required=false,
+     *     description="Data final (padrão: hoje)",
+     *     @OA\Schema(type="string", format="date")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Fluxo de tráfego",
+     *     @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *   )
+     * )
      */
     // Traffic flow by hour and weekday
     public function trafficFlow(Request $request)
@@ -149,7 +230,35 @@ class AnalyticsController extends Controller
     }
 
     /**
-     * @OA\Get(path="/api/analytics/breakeven", tags={"Analytics"}, @OA\Response(response=200, description="Ponto de equilíbrio diário"))
+     * @OA\Get(
+     *   path="/api/analytics/breakeven",
+     *   tags={"Analytics"},
+     *   summary="Ponto de equilíbrio diário",
+     *   @OA\Parameter(
+     *     name="date",
+     *     in="query",
+     *     required=false,
+     *     description="Data para análise (padrão: hoje)",
+     *     @OA\Schema(type="string", format="date")
+     *   ),
+     *   @OA\Parameter(
+     *     name="fixed_cost",
+     *     in="query",
+     *     required=false,
+     *     description="Custo fixo diário (padrão: 2000.0)",
+     *     @OA\Schema(type="number", format="float", default=2000.0)
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Análise de ponto de equilíbrio",
+     *     @OA\JsonContent(
+     *       @OA\Property(property="date", type="string", format="date"),
+     *       @OA\Property(property="breakeven", type="number", format="float"),
+     *       @OA\Property(property="revenue", type="number", format="float"),
+     *       @OA\Property(property="gap", type="number", format="float")
+     *     )
+     *   )
+     * )
      */
     // Daily breakeven (simple input for fixed cost and COGS ratio)
     public function breakeven(Request $request)

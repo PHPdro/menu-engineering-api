@@ -14,7 +14,23 @@ use Illuminate\Validation\ValidationException;
 class SaleController extends Controller
 {
     /**
-     * @OA\Get(path="/api/sales", tags={"Sales"}, @OA\Response(response=200, description="Lista"))
+     * @OA\Get(
+     *   path="/api/sales",
+     *   tags={"Sales"},
+     *   summary="Listar vendas",
+     *   @OA\Response(
+     *     response=200,
+     *     description="Lista paginada de vendas",
+     *     @OA\JsonContent(
+     *       allOf={
+     *         @OA\Schema(ref="#/components/schemas/PaginatedResponse"),
+     *         @OA\Schema(
+     *           @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Sale"))
+     *         )
+     *       }
+     *     )
+     *   )
+     * )
      */
     public function index(Request $request)
     {
@@ -23,7 +39,24 @@ class SaleController extends Controller
     }
 
     /**
-     * @OA\Get(path="/api/sales/{id}", tags={"Sales"}, @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")), @OA\Response(response=200, description="Detalhe"))
+     * @OA\Get(
+     *   path="/api/sales/{id}",
+     *   tags={"Sales"},
+     *   summary="Obter detalhes da venda",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID da venda",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Detalhes da venda",
+     *     @OA\JsonContent(ref="#/components/schemas/Sale")
+     *   ),
+     *   @OA\Response(response=404, description="Venda não encontrada")
+     * )
      */
     public function show(Sale $sale)
     {
@@ -34,22 +67,16 @@ class SaleController extends Controller
      * @OA\Post(
      *   path="/api/sales",
      *   tags={"Sales"},
-     *   summary="Cria venda e baixa estoque por FIFO",
-     *   @OA\RequestBody(required=true,
-     *     @OA\JsonContent(
-     *       required={"sold_at","items"},
-     *       @OA\Property(property="sold_at", type="string", format="date-time"),
-     *       @OA\Property(property="channel", type="string"),
-     *       @OA\Property(property="items", type="array",
-     *         @OA\Items(
-     *           @OA\Property(property="dish_id", type="integer"),
-     *           @OA\Property(property="quantity", type="integer"),
-     *           @OA\Property(property="unit_price", type="number", format="float")
-     *         )
-     *       )
-     *     )
+     *   summary="Criar venda e baixar estoque por FIFO",
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(ref="#/components/schemas/SaleRequest")
      *   ),
-     *   @OA\Response(response=201, description="Criado"),
+     *   @OA\Response(
+     *     response=201,
+     *     description="Venda criada com sucesso",
+     *     @OA\JsonContent(ref="#/components/schemas/Sale")
+     *   ),
      *   @OA\Response(response=422, description="Erro de validação / estoque insuficiente")
      * )
      */

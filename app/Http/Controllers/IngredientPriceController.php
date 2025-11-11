@@ -8,7 +8,37 @@ use Illuminate\Http\Request;
 class IngredientPriceController extends Controller
 {
     /**
-     * @OA\Get(path="/api/ingredient-prices", tags={"Suppliers"}, @OA\Response(response=200, description="Lista"))
+     * @OA\Get(
+     *   path="/api/ingredient-prices",
+     *   tags={"Suppliers"},
+     *   summary="Listar preços de ingredientes",
+     *   @OA\Parameter(
+     *     name="ingredient_id",
+     *     in="query",
+     *     required=false,
+     *     description="Filtrar por ID do ingrediente",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Parameter(
+     *     name="supplier_id",
+     *     in="query",
+     *     required=false,
+     *     description="Filtrar por ID do fornecedor",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Lista paginada de preços de ingredientes",
+     *     @OA\JsonContent(
+     *       allOf={
+     *         @OA\Schema(ref="#/components/schemas/PaginatedResponse"),
+     *         @OA\Schema(
+     *           @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/IngredientPrice"))
+     *         )
+     *       }
+     *     )
+     *   )
+     * )
      */
     public function index(Request $request)
     {
@@ -23,7 +53,21 @@ class IngredientPriceController extends Controller
     }
 
     /**
-     * @OA\Post(path="/api/ingredient-prices", tags={"Suppliers"}, @OA\RequestBody(required=true), @OA\Response(response=201, description="Criado"))
+     * @OA\Post(
+     *   path="/api/ingredient-prices",
+     *   tags={"Suppliers"},
+     *   summary="Criar preço de ingrediente",
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(ref="#/components/schemas/IngredientPriceRequest")
+     *   ),
+     *   @OA\Response(
+     *     response=201,
+     *     description="Preço de ingrediente criado com sucesso",
+     *     @OA\JsonContent(ref="#/components/schemas/IngredientPrice")
+     *   ),
+     *   @OA\Response(response=422, description="Erro de validação")
+     * )
      */
     public function store(Request $request)
     {
@@ -41,7 +85,24 @@ class IngredientPriceController extends Controller
     }
 
     /**
-     * @OA\Get(path="/api/ingredient-prices/{id}", tags={"Suppliers"}, @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")), @OA\Response(response=200, description="Detalhe"))
+     * @OA\Get(
+     *   path="/api/ingredient-prices/{id}",
+     *   tags={"Suppliers"},
+     *   summary="Obter detalhes do preço de ingrediente",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID do preço de ingrediente",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Detalhes do preço de ingrediente",
+     *     @OA\JsonContent(ref="#/components/schemas/IngredientPrice")
+     *   ),
+     *   @OA\Response(response=404, description="Preço de ingrediente não encontrado")
+     * )
      */
     public function show(IngredientPrice $ingredientPrice)
     {
@@ -49,7 +110,29 @@ class IngredientPriceController extends Controller
     }
 
     /**
-     * @OA\Put(path="/api/ingredient-prices/{id}", tags={"Suppliers"}, @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")), @OA\RequestBody(required=true), @OA\Response(response=200, description="Atualizado"))
+     * @OA\Put(
+     *   path="/api/ingredient-prices/{id}",
+     *   tags={"Suppliers"},
+     *   summary="Atualizar preço de ingrediente",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID do preço de ingrediente",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(ref="#/components/schemas/IngredientPriceRequest")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Preço de ingrediente atualizado com sucesso",
+     *     @OA\JsonContent(ref="#/components/schemas/IngredientPrice")
+     *   ),
+     *   @OA\Response(response=404, description="Preço de ingrediente não encontrado"),
+     *   @OA\Response(response=422, description="Erro de validação")
+     * )
      */
     public function update(Request $request, IngredientPrice $ingredientPrice)
     {
@@ -65,7 +148,20 @@ class IngredientPriceController extends Controller
     }
 
     /**
-     * @OA\Delete(path="/api/ingredient-prices/{id}", tags={"Suppliers"}, @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")), @OA\Response(response=204, description="Removido"))
+     * @OA\Delete(
+     *   path="/api/ingredient-prices/{id}",
+     *   tags={"Suppliers"},
+     *   summary="Excluir preço de ingrediente",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID do preço de ingrediente",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(response=204, description="Preço de ingrediente excluído com sucesso"),
+     *   @OA\Response(response=404, description="Preço de ingrediente não encontrado")
+     * )
      */
     public function destroy(IngredientPrice $ingredientPrice)
     {

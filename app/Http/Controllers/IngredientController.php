@@ -11,7 +11,19 @@ class IngredientController extends Controller
      * @OA\Get(
      *   path="/api/ingredients",
      *   tags={"Ingredients"},
-     *   @OA\Response(response=200, description="Listar ingredientes")
+     *   summary="Listar ingredientes",
+     *   @OA\Response(
+     *     response=200,
+     *     description="Lista paginada de ingredientes",
+     *     @OA\JsonContent(
+     *       allOf={
+     *         @OA\Schema(ref="#/components/schemas/PaginatedResponse"),
+     *         @OA\Schema(
+     *           @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Ingredient"))
+     *         )
+     *       }
+     *     )
+     *   )
      * )
      */
     public function index()
@@ -23,8 +35,17 @@ class IngredientController extends Controller
      * @OA\Post(
      *   path="/api/ingredients",
      *   tags={"Ingredients"},
-     *   @OA\RequestBody(required=true),
-     *   @OA\Response(response=201, description="Criado")
+     *   summary="Criar ingrediente",
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(ref="#/components/schemas/IngredientRequest")
+     *   ),
+     *   @OA\Response(
+     *     response=201,
+     *     description="Ingrediente criado com sucesso",
+     *     @OA\JsonContent(ref="#/components/schemas/Ingredient")
+     *   ),
+     *   @OA\Response(response=422, description="Erro de validação")
      * )
      */
     public function store(Request $request)
@@ -44,8 +65,20 @@ class IngredientController extends Controller
      * @OA\Get(
      *   path="/api/ingredients/{id}",
      *   tags={"Ingredients"},
-     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *   @OA\Response(response=200, description="Detalhe")
+     *   summary="Obter detalhes do ingrediente",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID do ingrediente",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Detalhes do ingrediente",
+     *     @OA\JsonContent(ref="#/components/schemas/Ingredient")
+     *   ),
+     *   @OA\Response(response=404, description="Ingrediente não encontrado")
      * )
      */
     public function show(Ingredient $ingredient)
@@ -57,9 +90,25 @@ class IngredientController extends Controller
      * @OA\Put(
      *   path="/api/ingredients/{id}",
      *   tags={"Ingredients"},
-     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *   @OA\RequestBody(required=true),
-     *   @OA\Response(response=200, description="Atualizado")
+     *   summary="Atualizar ingrediente",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID do ingrediente",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(ref="#/components/schemas/IngredientRequest")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Ingrediente atualizado com sucesso",
+     *     @OA\JsonContent(ref="#/components/schemas/Ingredient")
+     *   ),
+     *   @OA\Response(response=404, description="Ingrediente não encontrado"),
+     *   @OA\Response(response=422, description="Erro de validação")
      * )
      */
     public function update(Request $request, Ingredient $ingredient)
@@ -79,8 +128,16 @@ class IngredientController extends Controller
      * @OA\Delete(
      *   path="/api/ingredients/{id}",
      *   tags={"Ingredients"},
-     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *   @OA\Response(response=204, description="Removido")
+     *   summary="Excluir ingrediente",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID do ingrediente",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(response=204, description="Ingrediente excluído com sucesso"),
+     *   @OA\Response(response=404, description="Ingrediente não encontrado")
      * )
      */
     public function destroy(Ingredient $ingredient)

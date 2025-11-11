@@ -8,7 +8,30 @@ use Illuminate\Http\Request;
 class DishController extends Controller
 {
     /**
-     * @OA\Get(path="/api/dishes", tags={"Dishes"}, @OA\Response(response=200, description="Lista"))
+     * @OA\Get(
+     *   path="/api/dishes",
+     *   tags={"Dishes"},
+     *   summary="Listar pratos",
+     *   @OA\Parameter(
+     *     name="active_only",
+     *     in="query",
+     *     required=false,
+     *     description="Filtrar apenas pratos ativos",
+     *     @OA\Schema(type="boolean")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Lista paginada de pratos",
+     *     @OA\JsonContent(
+     *       allOf={
+     *         @OA\Schema(ref="#/components/schemas/PaginatedResponse"),
+     *         @OA\Schema(
+     *           @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Dish"))
+     *         )
+     *       }
+     *     )
+     *   )
+     * )
      */
     public function index(Request $request)
     {
@@ -20,7 +43,21 @@ class DishController extends Controller
     }
 
     /**
-     * @OA\Post(path="/api/dishes", tags={"Dishes"}, @OA\RequestBody(required=true), @OA\Response(response=201, description="Criado"))
+     * @OA\Post(
+     *   path="/api/dishes",
+     *   tags={"Dishes"},
+     *   summary="Criar prato",
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(ref="#/components/schemas/DishRequest")
+     *   ),
+     *   @OA\Response(
+     *     response=201,
+     *     description="Prato criado com sucesso",
+     *     @OA\JsonContent(ref="#/components/schemas/Dish")
+     *   ),
+     *   @OA\Response(response=422, description="Erro de validação")
+     * )
      */
     public function store(Request $request)
     {
@@ -35,7 +72,24 @@ class DishController extends Controller
     }
 
     /**
-     * @OA\Get(path="/api/dishes/{id}", tags={"Dishes"}, @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")), @OA\Response(response=200, description="Detalhe"))
+     * @OA\Get(
+     *   path="/api/dishes/{id}",
+     *   tags={"Dishes"},
+     *   summary="Obter detalhes do prato",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID do prato",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Detalhes do prato",
+     *     @OA\JsonContent(ref="#/components/schemas/Dish")
+     *   ),
+     *   @OA\Response(response=404, description="Prato não encontrado")
+     * )
      */
     public function show(Dish $dish)
     {
@@ -43,7 +97,29 @@ class DishController extends Controller
     }
 
     /**
-     * @OA\Put(path="/api/dishes/{id}", tags={"Dishes"}, @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")), @OA\RequestBody(required=true), @OA\Response(response=200, description="Atualizado"))
+     * @OA\Put(
+     *   path="/api/dishes/{id}",
+     *   tags={"Dishes"},
+     *   summary="Atualizar prato",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID do prato",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(ref="#/components/schemas/DishRequest")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Prato atualizado com sucesso",
+     *     @OA\JsonContent(ref="#/components/schemas/Dish")
+     *   ),
+     *   @OA\Response(response=404, description="Prato não encontrado"),
+     *   @OA\Response(response=422, description="Erro de validação")
+     * )
      */
     public function update(Request $request, Dish $dish)
     {
@@ -58,7 +134,20 @@ class DishController extends Controller
     }
 
     /**
-     * @OA\Delete(path="/api/dishes/{id}", tags={"Dishes"}, @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")), @OA\Response(response=204, description="Removido"))
+     * @OA\Delete(
+     *   path="/api/dishes/{id}",
+     *   tags={"Dishes"},
+     *   summary="Excluir prato",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID do prato",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(response=204, description="Prato excluído com sucesso"),
+     *   @OA\Response(response=404, description="Prato não encontrado")
+     * )
      */
     public function destroy(Dish $dish)
     {

@@ -8,7 +8,30 @@ use Illuminate\Http\Request;
 class BatchController extends Controller
 {
     /**
-     * @OA\Get(path="/api/batches", tags={"Batches"}, @OA\Response(response=200, description="Lista"))
+     * @OA\Get(
+     *   path="/api/batches",
+     *   tags={"Batches"},
+     *   summary="Listar lotes",
+     *   @OA\Parameter(
+     *     name="ingredient_id",
+     *     in="query",
+     *     required=false,
+     *     description="Filtrar por ID do ingrediente",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Lista paginada de lotes",
+     *     @OA\JsonContent(
+     *       allOf={
+     *         @OA\Schema(ref="#/components/schemas/PaginatedResponse"),
+     *         @OA\Schema(
+     *           @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Batch"))
+     *         )
+     *       }
+     *     )
+     *   )
+     * )
      */
     public function index(Request $request)
     {
@@ -20,7 +43,21 @@ class BatchController extends Controller
     }
 
     /**
-     * @OA\Post(path="/api/batches", tags={"Batches"}, @OA\RequestBody(required=true), @OA\Response(response=201, description="Criado"))
+     * @OA\Post(
+     *   path="/api/batches",
+     *   tags={"Batches"},
+     *   summary="Criar lote",
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(ref="#/components/schemas/BatchRequest")
+     *   ),
+     *   @OA\Response(
+     *     response=201,
+     *     description="Lote criado com sucesso",
+     *     @OA\JsonContent(ref="#/components/schemas/Batch")
+     *   ),
+     *   @OA\Response(response=422, description="Erro de validação")
+     * )
      */
     public function store(Request $request)
     {
@@ -36,7 +73,24 @@ class BatchController extends Controller
     }
 
     /**
-     * @OA\Get(path="/api/batches/{id}", tags={"Batches"}, @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")), @OA\Response(response=200, description="Detalhe"))
+     * @OA\Get(
+     *   path="/api/batches/{id}",
+     *   tags={"Batches"},
+     *   summary="Obter detalhes do lote",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID do lote",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Detalhes do lote",
+     *     @OA\JsonContent(ref="#/components/schemas/Batch")
+     *   ),
+     *   @OA\Response(response=404, description="Lote não encontrado")
+     * )
      */
     public function show(Batch $batch)
     {
@@ -44,7 +98,29 @@ class BatchController extends Controller
     }
 
     /**
-     * @OA\Put(path="/api/batches/{id}", tags={"Batches"}, @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")), @OA\RequestBody(required=true), @OA\Response(response=200, description="Atualizado"))
+     * @OA\Put(
+     *   path="/api/batches/{id}",
+     *   tags={"Batches"},
+     *   summary="Atualizar lote",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID do lote",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(ref="#/components/schemas/BatchRequest")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Lote atualizado com sucesso",
+     *     @OA\JsonContent(ref="#/components/schemas/Batch")
+     *   ),
+     *   @OA\Response(response=404, description="Lote não encontrado"),
+     *   @OA\Response(response=422, description="Erro de validação")
+     * )
      */
     public function update(Request $request, Batch $batch)
     {
@@ -59,7 +135,20 @@ class BatchController extends Controller
     }
 
     /**
-     * @OA\Delete(path="/api/batches/{id}", tags={"Batches"}, @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")), @OA\Response(response=204, description="Removido"))
+     * @OA\Delete(
+     *   path="/api/batches/{id}",
+     *   tags={"Batches"},
+     *   summary="Excluir lote",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID do lote",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(response=204, description="Lote excluído com sucesso"),
+     *   @OA\Response(response=404, description="Lote não encontrado")
+     * )
      */
     public function destroy(Batch $batch)
     {
