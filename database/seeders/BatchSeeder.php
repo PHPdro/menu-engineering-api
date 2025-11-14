@@ -19,13 +19,28 @@ class BatchSeeder extends Seeder
             $batchCount = $ingredient->is_perishable ? rand(2, 3) : 1;
             
             for ($i = 0; $i < $batchCount; $i++) {
-                $receivedAt = $now->copy()->subDays(rand(0, 30));
                 $quantity = $this->getQuantityForIngredient($ingredient);
                 $unitCost = $this->getUnitCostForIngredient($ingredient);
                 
                 $expiresAt = null;
+                $receivedAt = null;
+                
                 if ($ingredient->is_perishable && $ingredient->shelf_life_days) {
-                    $expiresAt = $receivedAt->copy()->addDays($ingredient->shelf_life_days);
+                    // Garante que pelo menos um lote esteja próximo de expirar (nas próximas 48h)
+                    if ($i === 0 && $batchCount > 1) {
+                        // Primeiro lote: próximo de expirar (expira em 12-48 horas)
+                        $hoursUntilExpiry = rand(12, 48);
+                        $expiresAt = $now->copy()->addHours($hoursUntilExpiry);
+                        $receivedAt = $expiresAt->copy()->subDays($ingredient->shelf_life_days);
+                    } else {
+                        // Outros lotes: distribuição aleatória
+                        $daysAgo = rand(0, min(30, $ingredient->shelf_life_days - 1));
+                        $receivedAt = $now->copy()->subDays($daysAgo);
+                        $expiresAt = $receivedAt->copy()->addDays($ingredient->shelf_life_days);
+                    }
+                } else {
+                    // Ingrediente não perecível: data aleatória
+                    $receivedAt = $now->copy()->subDays(rand(0, 30));
                 }
                 
                 Batch::create([
