@@ -49,7 +49,7 @@ class IngredientPriceController extends Controller
         if ($request->filled('supplier_id')) {
             $query->where('supplier_id', $request->integer('supplier_id'));
         }
-        return $query->paginate(50);
+        return $query->paginate(10);
     }
 
     /**

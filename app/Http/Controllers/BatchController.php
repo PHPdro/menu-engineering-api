@@ -39,7 +39,7 @@ class BatchController extends Controller
         if ($request->filled('ingredient_id')) {
             $query->where('ingredient_id', $request->integer('ingredient_id'));
         }
-        return $query->paginate(50);
+        return $query->paginate(10);
     }
 
     /**

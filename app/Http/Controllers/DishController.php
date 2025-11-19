@@ -39,7 +39,7 @@ class DishController extends Controller
         if ($request->boolean('active_only')) {
             $query->where('is_active', true);
         }
-        return $query->paginate(50);
+        return $query->paginate(10);
     }
 
     /**

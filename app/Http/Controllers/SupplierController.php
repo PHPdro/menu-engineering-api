@@ -28,7 +28,7 @@ class SupplierController extends Controller
      */
     public function index()
     {
-        return Supplier::query()->orderBy('name')->paginate(50);
+        return Supplier::query()->orderBy('name')->paginate(10);
     }
 
     /**

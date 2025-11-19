@@ -35,7 +35,7 @@ class SaleController extends Controller
     public function index(Request $request)
     {
         $query = Sale::with('items.dish')->orderByDesc('sold_at');
-        return $query->paginate(50);
+        return $query->paginate(10);
     }
 
     /**

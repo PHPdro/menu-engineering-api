@@ -39,7 +39,7 @@ class RecipeController extends Controller
         if ($request->filled('dish_id')) {
             $query->where('dish_id', $request->integer('dish_id'));
         }
-        return $query->paginate(50);
+        return $query->paginate(10);
     }
 
     /**
