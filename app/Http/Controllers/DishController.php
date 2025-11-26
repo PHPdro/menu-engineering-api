@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dish;
+use App\Models\Recipe;
+use App\Models\RecipeItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DishController extends Controller
 {
@@ -66,9 +69,47 @@ class DishController extends Controller
             'sku' => 'nullable|string|max:255|unique:dishes,sku',
             'price' => 'required|numeric|min:0',
             'is_active' => 'boolean',
+            // Campos opcionais para criar receita junto
+            'recipe' => 'nullable|array',
+            'recipe.version' => 'nullable|string|max:255',
+            'recipe.items' => 'nullable|array',
+            'recipe.items.*.ingredient_id' => 'required_with:recipe.items|exists:ingredients,id',
+            'recipe.items.*.quantity' => 'required_with:recipe.items|numeric|min:0.001',
+            'recipe.items.*.notes' => 'nullable|string|max:512',
         ]);
-        $dish = Dish::create($data);
-        return response()->json($dish, 201);
+
+        return DB::transaction(function () use ($data) {
+            // Criar o prato
+            $dish = Dish::create([
+                'name' => $data['name'],
+                'sku' => $data['sku'] ?? null,
+                'price' => $data['price'],
+                'is_active' => $data['is_active'] ?? true,
+            ]);
+
+            // Se receita foi fornecida, criar junto
+            if (isset($data['recipe'])) {
+                $recipe = Recipe::create([
+                    'dish_id' => $dish->id,
+                    'version' => $data['recipe']['version'] ?? 'v1',
+                    'is_active' => true,
+                ]);
+
+                // Criar itens da receita
+                if (isset($data['recipe']['items']) && is_array($data['recipe']['items'])) {
+                    foreach ($data['recipe']['items'] as $item) {
+                        RecipeItem::create([
+                            'recipe_id' => $recipe->id,
+                            'ingredient_id' => $item['ingredient_id'],
+                            'quantity' => $item['quantity'],
+                            'notes' => $item['notes'] ?? null,
+                        ]);
+                    }
+                }
+            }
+
+            return response()->json($dish->load('recipe.items.ingredient'), 201);
+        });
     }
 
     /**
@@ -128,9 +169,59 @@ class DishController extends Controller
             'sku' => 'nullable|string|max:255|unique:dishes,sku,' . $dish->id,
             'price' => 'sometimes|numeric|min:0',
             'is_active' => 'sometimes|boolean',
+            // Campos opcionais para atualizar receita junto
+            'recipe' => 'nullable|array',
+            'recipe.version' => 'nullable|string|max:255',
+            'recipe.items' => 'nullable|array',
+            'recipe.items.*.ingredient_id' => 'required_with:recipe.items|exists:ingredients,id',
+            'recipe.items.*.quantity' => 'required_with:recipe.items|numeric|min:0.001',
+            'recipe.items.*.notes' => 'nullable|string|max:512',
         ]);
-        $dish->update($data);
-        return $dish->load('recipe.items.ingredient');
+
+        return DB::transaction(function () use ($data, $dish) {
+            // Atualizar dados do prato
+            $updateData = [];
+            if (isset($data['name'])) $updateData['name'] = $data['name'];
+            if (isset($data['sku'])) $updateData['sku'] = $data['sku'];
+            if (isset($data['price'])) $updateData['price'] = $data['price'];
+            if (isset($data['is_active'])) $updateData['is_active'] = $data['is_active'];
+            
+            if (!empty($updateData)) {
+                $dish->update($updateData);
+            }
+
+            // Se receita foi fornecida, atualizar ou criar
+            if (isset($data['recipe'])) {
+                $recipe = $dish->recipe ?? Recipe::create([
+                    'dish_id' => $dish->id,
+                    'version' => $data['recipe']['version'] ?? 'v1',
+                    'is_active' => true,
+                ]);
+
+                // Atualizar versão se fornecida
+                if (isset($data['recipe']['version'])) {
+                    $recipe->update(['version' => $data['recipe']['version']]);
+                }
+
+                // Se itens foram fornecidos, substituir todos
+                if (isset($data['recipe']['items']) && is_array($data['recipe']['items'])) {
+                    // Deletar itens antigos
+                    $recipe->items()->delete();
+
+                    // Criar novos itens
+                    foreach ($data['recipe']['items'] as $item) {
+                        RecipeItem::create([
+                            'recipe_id' => $recipe->id,
+                            'ingredient_id' => $item['ingredient_id'],
+                            'quantity' => $item['quantity'],
+                            'notes' => $item['notes'] ?? null,
+                        ]);
+                    }
+                }
+            }
+
+            return $dish->fresh()->load('recipe.items.ingredient');
+        });
     }
 
     /**
