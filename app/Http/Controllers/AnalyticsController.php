@@ -44,12 +44,34 @@ class AnalyticsController extends Controller
     // Popularity vs Profitability matrix
     public function menuMatrix(Request $request)
     {
-        $periodStart = $request->date('start', now()->subDays(30));
-        $periodEnd = $request->date('end', now());
+        // Valida e parseia as datas com tratamento de erro
+        try {
+            $periodStart = $request->filled('start') 
+                ? Carbon::parse($request->input('start'))->startOfDay()
+                : now()->subDays(30)->startOfDay();
+            
+            $periodEnd = $request->filled('end')
+                ? Carbon::parse($request->input('end'))->endOfDay()
+                : now()->endOfDay();
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Formato de data inválido. Use o formato YYYY-MM-DD (ex: 2025-11-01)'
+            ], 422);
+        }
+        
+        // Valida que start não seja maior que end
+        if ($periodStart->gt($periodEnd)) {
+            return response()->json([
+                'error' => 'A data inicial não pode ser maior que a data final'
+            ], 422);
+        }
 
         $sales = SaleItem::select('dish_id', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(total_price) as revenue'))
             ->whereHas('sale', function ($q) use ($periodStart, $periodEnd) {
-                $q->whereBetween('sold_at', [$periodStart, $periodEnd]);
+                $q->whereBetween('sold_at', [
+                    $periodStart->toDateTimeString(),
+                    $periodEnd->toDateTimeString()
+                ]);
             })
             ->groupBy('dish_id')
             ->get()
@@ -218,11 +240,33 @@ class AnalyticsController extends Controller
     // Traffic flow by hour and weekday
     public function trafficFlow(Request $request)
     {
-        $start = $request->date('start', now()->subDays(30));
-        $end = $request->date('end', now());
+        // Valida e parseia as datas com tratamento de erro
+        try {
+            $start = $request->filled('start')
+                ? Carbon::parse($request->input('start'))->startOfDay()
+                : now()->subDays(30)->startOfDay();
+            
+            $end = $request->filled('end')
+                ? Carbon::parse($request->input('end'))->endOfDay()
+                : now()->endOfDay();
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Formato de data inválido. Use o formato YYYY-MM-DD (ex: 2025-11-01)'
+            ], 422);
+        }
+        
+        // Valida que start não seja maior que end
+        if ($start->gt($end)) {
+            return response()->json([
+                'error' => 'A data inicial não pode ser maior que a data final'
+            ], 422);
+        }
         $rows = DB::table('sales')
             ->selectRaw('strftime("%w", sold_at) as weekday, strftime("%H", sold_at) as hour, SUM(total) as revenue, COUNT(*) as sales')
-            ->whereBetween('sold_at', [$start, $end])
+            ->whereBetween('sold_at', [
+                $start->toDateTimeString(),
+                $end->toDateTimeString()
+            ])
             ->groupByRaw('weekday, hour')
             ->orderByRaw('weekday, hour')
             ->get();
@@ -263,10 +307,19 @@ class AnalyticsController extends Controller
     // Daily breakeven (simple input for fixed cost and COGS ratio)
     public function breakeven(Request $request)
     {
-        $date = $request->date('date', now());
+        // Valida e parseia a data com tratamento de erro
+        try {
+            $date = $request->filled('date')
+                ? Carbon::parse($request->input('date'))->startOfDay()
+                : now()->startOfDay();
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Formato de data inválido. Use o formato YYYY-MM-DD (ex: 2025-11-01)'
+            ], 422);
+        }
         $fixedCost = (float) $request->input('fixed_cost', 2000.0);
         $revenue = (float) DB::table('sales')
-            ->whereDate('sold_at', $date)
+            ->whereDate('sold_at', $date->toDateString())
             ->sum('total');
         return [
             'date' => $date->toDateString(),
