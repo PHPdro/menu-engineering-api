@@ -129,6 +129,195 @@ class AnalyticsController extends Controller
 
     /**
      * @OA\Get(
+     *   path="/api/analytics/menu-matrix-by-category",
+     *   tags={"Analytics"},
+     *   summary="Matriz de Popularidade x Rentabilidade agrupada por categoria",
+     *   @OA\Parameter(
+     *     name="start",
+     *     in="query",
+     *     required=false,
+     *     description="Data inicial (padrão: 30 dias atrás)",
+     *     @OA\Schema(type="string", format="date")
+     *   ),
+     *   @OA\Parameter(
+     *     name="end",
+     *     in="query",
+     *     required=false,
+     *     description="Data final (padrão: hoje)",
+     *     @OA\Schema(type="string", format="date")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Matriz agrupada por categoria com totais e percentuais",
+     *     @OA\JsonContent(
+     *       @OA\Property(property="thresholds", type="object"),
+     *       @OA\Property(property="total_sales", type="number"),
+     *       @OA\Property(property="categories", type="object")
+     *     )
+     *   )
+     * )
+     */
+    public function menuMatrixByCategory(Request $request)
+    {
+        // Valida e parseia as datas (mesma lógica do menuMatrix)
+        try {
+            $periodStart = $request->filled('start') 
+                ? Carbon::parse($request->input('start'))->startOfDay()
+                : now()->subDays(30)->startOfDay();
+            
+            $periodEnd = $request->filled('end')
+                ? Carbon::parse($request->input('end'))->endOfDay()
+                : now()->endOfDay();
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Formato de data inválido. Use o formato YYYY-MM-DD (ex: 2025-11-01)'
+            ], 422);
+        }
+        
+        // Valida que start não seja maior que end
+        if ($periodStart->gt($periodEnd)) {
+            return response()->json([
+                'error' => 'A data inicial não pode ser maior que a data final'
+            ], 422);
+        }
+
+        // Reutiliza a lógica de cálculo do menuMatrix
+        $sales = SaleItem::select('dish_id', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(total_price) as revenue'))
+            ->whereHas('sale', function ($q) use ($periodStart, $periodEnd) {
+                $q->whereBetween('sold_at', [
+                    $periodStart->toDateTimeString(),
+                    $periodEnd->toDateTimeString()
+                ]);
+            })
+            ->groupBy('dish_id')
+            ->get()
+            ->keyBy('dish_id');
+
+        $dishes = Dish::with(['recipe.items'])->get();
+
+        $rows = [];
+        foreach ($dishes as $dish) {
+            $qty = (int) ($sales[$dish->id]->total_qty ?? 0);
+            $revenue = (float) ($sales[$dish->id]->revenue ?? 0);
+            $costPerDish = 0.0;
+            if ($dish->recipe) {
+                foreach ($dish->recipe->items as $item) {
+                    $unitCost = self::currentIngredientUnitCost($item->ingredient_id);
+                    $costPerDish += $unitCost * (float)$item->quantity;
+                }
+            }
+            $profitPerDish = (float) $dish->price - $costPerDish;
+            $profit = $profitPerDish * $qty;
+            $rows[] = [
+                'dish_id' => $dish->id,
+                'name' => $dish->name,
+                'qty' => $qty,
+                'revenue' => round($revenue, 2),
+                'cost_per_dish' => round($costPerDish, 2),
+                'profit_per_dish' => round($profitPerDish, 2),
+                'profit' => round($profit, 2),
+            ];
+        }
+
+        // Determine thresholds (medians) for popularity and profitability
+        $qtys = array_column($rows, 'qty');
+        $profits = array_column($rows, 'profit_per_dish');
+        $popThreshold = self::median($qtys);
+        $profitThreshold = self::median($profits);
+
+        foreach ($rows as &$r) {
+            $popular = $r['qty'] >= $popThreshold;
+            $profitable = $r['profit_per_dish'] >= $profitThreshold;
+            if ($popular && $profitable) $r['category'] = 1;
+            elseif ($popular && !$profitable) $r['category'] = 2;
+            elseif (!$popular && $profitable) $r['category'] = 3;
+            else $r['category'] = 4;
+        }
+
+        $items = $rows;
+        $thresholds = [
+            'popularity_qty' => $popThreshold,
+            'profitability_per_dish' => $profitThreshold,
+        ];
+        
+        // Calcula total de vendas
+        $totalSales = array_sum(array_column($items, 'qty'));
+        
+        // Agrupa por categoria
+        $categories = [
+            1 => [
+                'name' => 'Estrelas',
+                'description' => 'Popular e Rentável',
+                'color' => '#22c55e',
+                'items' => [],
+                'total_qty' => 0,
+                'total_revenue' => 0.0,
+                'percentage' => 0.0,
+            ],
+            2 => [
+                'name' => 'Vacas Leiteiras',
+                'description' => 'Popular mas não Rentável',
+                'color' => '#f59e0b',
+                'items' => [],
+                'total_qty' => 0,
+                'total_revenue' => 0.0,
+                'percentage' => 0.0,
+            ],
+            3 => [
+                'name' => 'Interrogações',
+                'description' => 'Rentável mas não Popular',
+                'color' => '#3b82f6',
+                'items' => [],
+                'total_qty' => 0,
+                'total_revenue' => 0.0,
+                'percentage' => 0.0,
+            ],
+            4 => [
+                'name' => 'Cachorros',
+                'description' => 'Nem Popular nem Rentável',
+                'color' => '#ef4444',
+                'items' => [],
+                'total_qty' => 0,
+                'total_revenue' => 0.0,
+                'percentage' => 0.0,
+            ],
+        ];
+        
+        // Agrupa itens por categoria
+        foreach ($items as $item) {
+            $category = $item['category'];
+            
+            $categories[$category]['items'][] = [
+                'dish_id' => $item['dish_id'],
+                'name' => $item['name'],
+                'qty' => $item['qty'],
+                'revenue' => $item['revenue'],
+                'cost_per_dish' => $item['cost_per_dish'],
+                'profit_per_dish' => $item['profit_per_dish'],
+                'profit' => $item['profit'],
+                'percentage' => $totalSales > 0 ? round(($item['qty'] / $totalSales) * 100, 2) : 0.0,
+            ];
+            
+            $categories[$category]['total_qty'] += $item['qty'];
+            $categories[$category]['total_revenue'] += $item['revenue'];
+        }
+        
+        // Calcula percentuais por categoria
+        foreach ($categories as $key => &$category) {
+            $category['percentage'] = $totalSales > 0 
+                ? round(($category['total_qty'] / $totalSales) * 100, 2) 
+                : 0.0;
+        }
+        
+        return [
+            'thresholds' => $thresholds,
+            'total_sales' => $totalSales,
+            'categories' => $categories,
+        ];
+    }
+
+    /**
+     * @OA\Get(
      *   path="/api/analytics/perishables-alerts",
      *   tags={"Analytics"},
      *   summary="Alertas de perecíveis",

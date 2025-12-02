@@ -22,6 +22,7 @@ Route::apiResource('sales', SaleController::class)->only(['index','store','show'
 
 // Analytics & alerts
 Route::get('analytics/menu-matrix', [AnalyticsController::class, 'menuMatrix']);
+Route::get('analytics/menu-matrix-by-category', [AnalyticsController::class, 'menuMatrixByCategory']);
 Route::get('analytics/perishables-alerts', [AnalyticsController::class, 'perishablesAlerts']);
 Route::get('analytics/price-trends', [AnalyticsController::class, 'priceTrends']);
 Route::get('analytics/traffic-flow', [AnalyticsController::class, 'trafficFlow']);
