@@ -11,43 +11,70 @@ class BatchSeeder extends Seeder
 {
     public function run(): void
     {
-        $ingredients = Ingredient::all();
+        $ingredients = Ingredient::where('is_perishable', true)->get();
+        $nonPerishableIngredients = Ingredient::where('is_perishable', false)->get();
         $now = now();
 
+        // Para ingredientes perecíveis: garante batches expirando
         foreach ($ingredients as $ingredient) {
-            // Cria 2-3 lotes por ingrediente perecível, 1 para não perecível
-            $batchCount = $ingredient->is_perishable ? rand(2, 3) : 1;
+            if (!$ingredient->shelf_life_days) {
+                continue;
+            }
+
+            // Cria 2-4 lotes por ingrediente perecível
+            $batchCount = rand(2, 4);
+            
+            // Garante que pelo menos 1-2 lotes expirem nas próximas 48h
+            $expiringSoonCount = min(2, $batchCount);
             
             for ($i = 0; $i < $batchCount; $i++) {
                 $quantity = $this->getQuantityForIngredient($ingredient);
                 $unitCost = $this->getUnitCostForIngredient($ingredient);
                 
-                $expiresAt = null;
-                $receivedAt = null;
-                
-                if ($ingredient->is_perishable && $ingredient->shelf_life_days) {
-                    // Garante que pelo menos um lote esteja próximo de expirar (nas próximas 48h)
-                    if ($i === 0 && $batchCount > 1) {
-                        // Primeiro lote: próximo de expirar (expira em 12-48 horas)
-                        $hoursUntilExpiry = rand(12, 48);
-                        $expiresAt = $now->copy()->addHours($hoursUntilExpiry);
-                        $receivedAt = $expiresAt->copy()->subDays($ingredient->shelf_life_days);
-                    } else {
-                        // Outros lotes: distribuição aleatória
-                        $daysAgo = rand(0, min(30, $ingredient->shelf_life_days - 1));
-                        $receivedAt = $now->copy()->subDays($daysAgo);
-                        $expiresAt = $receivedAt->copy()->addDays($ingredient->shelf_life_days);
-                    }
+                if ($i < $expiringSoonCount) {
+                    // Lotes que expiram nas próximas 48h (para alertas)
+                    $hoursUntilExpiry = rand(6, 48);
+                    $expiresAt = $now->copy()->addHours($hoursUntilExpiry);
+                    $receivedAt = $expiresAt->copy()->subDays($ingredient->shelf_life_days);
                 } else {
-                    // Ingrediente não perecível: data aleatória
-                    $receivedAt = $now->copy()->subDays(rand(0, 30));
+                    // Outros lotes: distribuição aleatória (alguns já expirados, outros futuros)
+                    $daysAgo = rand(0, min($ingredient->shelf_life_days * 2, 60));
+                    $receivedAt = $now->copy()->subDays($daysAgo);
+                    $expiresAt = $receivedAt->copy()->addDays($ingredient->shelf_life_days);
+                    
+                    // Se expirou há mais de 7 dias, não criar (ou criar com quantidade 0)
+                    if ($expiresAt->lt($now->copy()->subDays(7))) {
+                        $quantity = 0; // Lote já consumido/expirado
+                    }
                 }
+                
+                // Só cria se tiver quantidade
+                if ($quantity > 0) {
+                    Batch::create([
+                        'ingredient_id' => $ingredient->id,
+                        'quantity' => $quantity,
+                        'received_at' => $receivedAt,
+                        'expires_at' => $expiresAt,
+                        'unit_cost' => $unitCost,
+                    ]);
+                }
+            }
+        }
+
+        // Para ingredientes não perecíveis: cria 1-2 lotes
+        foreach ($nonPerishableIngredients as $ingredient) {
+            $batchCount = rand(1, 2);
+            
+            for ($i = 0; $i < $batchCount; $i++) {
+                $quantity = $this->getQuantityForIngredient($ingredient);
+                $unitCost = $this->getUnitCostForIngredient($ingredient);
+                $receivedAt = $now->copy()->subDays(rand(0, 60));
                 
                 Batch::create([
                     'ingredient_id' => $ingredient->id,
                     'quantity' => $quantity,
                     'received_at' => $receivedAt,
-                    'expires_at' => $expiresAt,
+                    'expires_at' => null,
                     'unit_cost' => $unitCost,
                 ]);
             }
