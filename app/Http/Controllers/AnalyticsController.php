@@ -451,16 +451,44 @@ class AnalyticsController extends Controller
                 'error' => 'A data inicial não pode ser maior que a data final'
             ], 422);
         }
-        $rows = DB::table('sales')
-            ->selectRaw('strftime("%w", sold_at) as weekday, strftime("%H", sold_at) as hour, SUM(total) as revenue, COUNT(*) as sales')
-            ->whereBetween('sold_at', [
-                $start->toDateTimeString(),
-                $end->toDateTimeString()
-            ])
-            ->groupByRaw('weekday, hour')
-            ->orderByRaw('weekday, hour')
-            ->get();
-        return $rows;
+        try {
+            $rows = DB::table('sales')
+                ->selectRaw('strftime("%w", sold_at) as weekday, strftime("%H", sold_at) as hour, SUM(total) as revenue, COUNT(*) as sales')
+                ->whereBetween('sold_at', [
+                    $start->toDateTimeString(),
+                    $end->toDateTimeString()
+                ])
+                ->groupByRaw('weekday, hour')
+                ->orderByRaw('weekday, hour')
+                ->get();
+            
+            // Garantir que os valores numéricos sejam retornados como números
+            // Se não houver dados, retorna array vazio
+            if ($rows->isEmpty()) {
+                return [];
+            }
+            
+            return $rows->map(function ($row) {
+                return [
+                    'weekday' => (string) ($row->weekday ?? '0'),
+                    'hour' => (string) ($row->hour ?? '00'),
+                    'revenue' => (float) ($row->revenue ?? 0),
+                    'sales' => (int) ($row->sales ?? 0),
+                ];
+            })->values()->toArray();
+        } catch (\Exception $e) {
+            // Log do erro para debug
+            \Log::error('Erro em traffic-flow: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'start' => $start->toDateTimeString(),
+                'end' => $end->toDateTimeString(),
+            ]);
+            
+            return response()->json([
+                'error' => 'Erro ao processar dados de tráfego',
+                'message' => config('app.debug') ? $e->getMessage() : 'Erro interno do servidor'
+            ], 500);
+        }
     }
 
     /**
