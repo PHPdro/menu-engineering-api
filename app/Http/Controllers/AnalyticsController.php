@@ -359,6 +359,7 @@ class AnalyticsController extends Controller
             $alerts[] = [
                 'ingredient_id' => $ingredientId,
                 'ingredient' => $batch->ingredient->name,
+                'unit' => $batch->ingredient->unit,
                 'batch_id' => $batch->id,
                 'quantity' => (float)$batch->quantity,
                 'expires_at' => $batch->expires_at,
