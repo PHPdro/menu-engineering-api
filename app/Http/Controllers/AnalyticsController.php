@@ -466,13 +466,28 @@ class AnalyticsController extends Controller
                 return [];
             }
             
-            $rows = DB::table('sales')
-                ->selectRaw('strftime("%w", sold_at) as weekday, strftime("%H", sold_at) as hour, SUM(total) as revenue, COUNT(*) as sales')
-                ->where('sold_at', '>=', $startStr)
-                ->where('sold_at', '<=', $endStr)
-                ->groupByRaw('strftime("%w", sold_at), strftime("%H", sold_at)')
-                ->orderByRaw('strftime("%w", sold_at), strftime("%H", sold_at)')
-                ->get();
+            // Detectar o driver do banco de dados e usar a sintaxe apropriada
+            $driver = DB::connection()->getDriverName();
+            
+            if ($driver === 'pgsql') {
+                // PostgreSQL: EXTRACT retorna DOW (0=domingo, 6=sábado) e HOUR (0-23)
+                $rows = DB::table('sales')
+                    ->selectRaw('EXTRACT(DOW FROM sold_at)::integer as weekday, EXTRACT(HOUR FROM sold_at)::integer as hour, SUM(total) as revenue, COUNT(*) as sales')
+                    ->where('sold_at', '>=', $startStr)
+                    ->where('sold_at', '<=', $endStr)
+                    ->groupByRaw('EXTRACT(DOW FROM sold_at), EXTRACT(HOUR FROM sold_at)')
+                    ->orderByRaw('EXTRACT(DOW FROM sold_at), EXTRACT(HOUR FROM sold_at)')
+                    ->get();
+            } else {
+                // SQLite: strftime
+                $rows = DB::table('sales')
+                    ->selectRaw('strftime("%w", sold_at) as weekday, strftime("%H", sold_at) as hour, SUM(total) as revenue, COUNT(*) as sales')
+                    ->where('sold_at', '>=', $startStr)
+                    ->where('sold_at', '<=', $endStr)
+                    ->groupByRaw('strftime("%w", sold_at), strftime("%H", sold_at)')
+                    ->orderByRaw('strftime("%w", sold_at), strftime("%H", sold_at)')
+                    ->get();
+            }
             
             // Garantir que os valores numéricos sejam retornados como números
             // Se não houver dados, retorna array vazio
@@ -489,29 +504,43 @@ class AnalyticsController extends Controller
                 ];
             })->values()->toArray();
         } catch (\Illuminate\Database\QueryException $e) {
-            // Log do erro SQL para debug
-            \Log::error('Erro SQL em traffic-flow: ' . $e->getMessage(), [
+            // Log completo do erro SQL
+            \Log::error('Erro SQL em traffic-flow', [
+                'message' => $e->getMessage(),
                 'sql' => $e->getSql(),
                 'bindings' => $e->getBindings(),
-                'start' => $start->toDateTimeString(),
-                'end' => $end->toDateTimeString(),
+                'driver' => DB::connection()->getDriverName(),
+                'start' => $startStr,
+                'end' => $endStr,
+                'trace' => $e->getTraceAsString(),
             ]);
             
+            // Sempre retornar o erro real para facilitar debug
             return response()->json([
                 'error' => 'Erro ao processar dados de tráfego',
-                'message' => config('app.debug') ? $e->getMessage() : 'Erro interno do servidor'
+                'message' => $e->getMessage(),
+                'sql' => config('app.debug') ? $e->getSql() : null,
+                'bindings' => config('app.debug') ? $e->getBindings() : null,
+                'driver' => DB::connection()->getDriverName(),
             ], 500);
         } catch (\Exception $e) {
-            // Log do erro geral para debug
-            \Log::error('Erro em traffic-flow: ' . $e->getMessage(), [
+            // Log completo do erro geral
+            \Log::error('Erro em traffic-flow', [
+                'message' => $e->getMessage(),
+                'class' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'start' => $startStr,
+                'end' => $endStr,
                 'trace' => $e->getTraceAsString(),
-                'start' => $start->toDateTimeString(),
-                'end' => $end->toDateTimeString(),
             ]);
             
+            // Sempre retornar o erro real para facilitar debug
             return response()->json([
                 'error' => 'Erro ao processar dados de tráfego',
-                'message' => config('app.debug') ? $e->getMessage() : 'Erro interno do servidor'
+                'message' => $e->getMessage(),
+                'class' => config('app.debug') ? get_class($e) : null,
+                'file' => config('app.debug') ? $e->getFile() . ':' . $e->getLine() : null,
             ], 500);
         }
     }
