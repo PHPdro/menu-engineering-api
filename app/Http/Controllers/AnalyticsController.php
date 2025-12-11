@@ -349,23 +349,61 @@ class AnalyticsController extends Controller
             ->orderBy('expires_at')
             ->get();
 
-        $alerts = [];
+        // Agrupa batches por ingrediente
+        $groupedByIngredient = [];
         foreach ($expiring as $batch) {
             $ingredientId = $batch->ingredient_id;
+            
+            if (!isset($groupedByIngredient[$ingredientId])) {
+                $groupedByIngredient[$ingredientId] = [
+                    'ingredient_id' => $ingredientId,
+                    'ingredient' => $batch->ingredient->name,
+                    'unit' => $batch->ingredient->unit,
+                    'quantity' => 0.0,
+                    'expires_at' => $batch->expires_at, // Primeira data de expiração (mais próxima)
+                    'batches' => [],
+                ];
+            }
+            
+            // Soma as quantidades
+            $groupedByIngredient[$ingredientId]['quantity'] += (float)$batch->quantity;
+            
+            // Mantém a data de expiração mais próxima
+            $currentExpiry = Carbon::parse($groupedByIngredient[$ingredientId]['expires_at']);
+            $batchExpiry = Carbon::parse($batch->expires_at);
+            if ($batchExpiry->lt($currentExpiry)) {
+                $groupedByIngredient[$ingredientId]['expires_at'] = $batch->expires_at;
+            }
+            
+            // Guarda IDs dos batches para referência
+            $groupedByIngredient[$ingredientId]['batches'][] = $batch->id;
+        }
+
+        // Calcula forecast para cada ingrediente agrupado
+        $alerts = [];
+        foreach ($groupedByIngredient as $ingredientId => $group) {
             // simple forecast: avg daily usage of last 14 days
             $dailyUsage = self::avgDailyIngredientUsage($ingredientId, 14);
-            $hoursToExpire = max(1, $now->diffInHours(Carbon::parse($batch->expires_at)));
+            $hoursToExpire = max(1, $now->diffInHours(Carbon::parse($group['expires_at'])));
             $expectedUse = $dailyUsage * ($hoursToExpire / 24);
+            
             $alerts[] = [
-                'ingredient_id' => $ingredientId,
-                'ingredient' => $batch->ingredient->name,
-                'unit' => $batch->ingredient->unit,
-                'batch_id' => $batch->id,
-                'quantity' => (float)$batch->quantity,
-                'expires_at' => $batch->expires_at,
+                'ingredient_id' => $group['ingredient_id'],
+                'ingredient' => $group['ingredient'],
+                'unit' => $group['unit'],
+                'batch_id' => $group['batches'][0] ?? null, // Primeiro batch para compatibilidade
+                'batch_ids' => $group['batches'], // Lista completa de batches
+                'quantity' => round($group['quantity'], 3),
+                'expires_at' => $group['expires_at'],
                 'forecast_use_until_expiry' => round($expectedUse, 3),
             ];
         }
+        
+        // Ordena por data de expiração (mais próxima primeiro)
+        usort($alerts, function ($a, $b) {
+            return Carbon::parse($a['expires_at'])->lt(Carbon::parse($b['expires_at'])) ? -1 : 1;
+        });
+        
         return $alerts;
     }
 
