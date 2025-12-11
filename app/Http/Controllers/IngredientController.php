@@ -12,23 +12,47 @@ class IngredientController extends Controller
      *   path="/api/ingredients",
      *   tags={"Ingredients"},
      *   summary="Listar ingredientes",
+     *   @OA\Parameter(
+     *     name="paginate",
+     *     in="query",
+     *     required=false,
+     *     description="Se deve retornar com paginação (padrão: true). Use false para retornar todos os itens.",
+     *     @OA\Schema(type="boolean", default=true)
+     *   ),
+     *   @OA\Parameter(
+     *     name="per_page",
+     *     in="query",
+     *     required=false,
+     *     description="Itens por página quando paginate=true (padrão: 10)",
+     *     @OA\Schema(type="integer", default=10)
+     *   ),
      *   @OA\Response(
      *     response=200,
-     *     description="Lista paginada de ingredientes",
+     *     description="Lista de ingredientes (paginada ou não)",
      *     @OA\JsonContent(
-     *       allOf={
+     *       oneOf={
      *         @OA\Schema(ref="#/components/schemas/PaginatedResponse"),
      *         @OA\Schema(
-     *           @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Ingredient"))
+     *           type="array",
+     *           @OA\Items(ref="#/components/schemas/Ingredient")
      *         )
      *       }
      *     )
      *   )
      * )
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Ingredient::query()->orderBy('name')->paginate(10);
+        $query = Ingredient::query()->orderBy('name');
+        
+        // Se paginate=false ou não fornecido mas queremos todos, retorna sem paginação
+        if ($request->boolean('paginate', true) === false) {
+            return $query->get();
+        }
+        
+        // Retorna com paginação
+        $perPage = $request->integer('per_page', 10);
+        return $query->paginate($perPage);
     }
 
     /**
